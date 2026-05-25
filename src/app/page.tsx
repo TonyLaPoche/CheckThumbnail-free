@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { ErrorAlert } from "@/components/ErrorAlert";
+import { FaqSection } from "@/components/FaqSection";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MetaPanel } from "@/components/MetaPanel";
@@ -11,16 +13,25 @@ import {
   TwitterPreview,
   WhatsAppPreview,
 } from "@/components/platform-previews";
+import { ScanProgress } from "@/components/ScanProgress";
 import { useI18n } from "@/i18n/context";
+import type { FetchErrorCode } from "@/lib/fetch-errors";
 import { OgFetchError } from "@/lib/fetch-errors";
-import { fetchOgMetadata } from "@/lib/fetch-og";
+import { fetchOgMetadata, type ScanPhase } from "@/lib/fetch-og";
 import type { OgMetadata } from "@/lib/og-parser";
+
+interface ScanError {
+  code: FetchErrorCode;
+  message: string;
+}
 
 export default function Home() {
   const { t } = useI18n();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<ScanPhase>("validating");
+  const [error, setError] = useState<ScanError | null>(null);
   const [meta, setMeta] = useState<OgMetadata | null>(null);
 
   async function handleCheck(e: FormEvent) {
@@ -28,16 +39,22 @@ export default function Home() {
     setError(null);
     setMeta(null);
     setLoading(true);
+    setProgress(0);
+    setPhase("validating");
 
     try {
-      const metadata = await fetchOgMetadata(url);
+      const metadata = await fetchOgMetadata(url, (p, ph) => {
+        setProgress(p);
+        setPhase(ph);
+      });
       setMeta(metadata);
     } catch (err) {
-      if (err instanceof OgFetchError) {
-        setError(t.errors[err.code]);
-      } else {
-        setError(t.errors.generic);
-      }
+      const code: FetchErrorCode =
+        err instanceof OgFetchError ? err.code : "generic";
+      setError({
+        code,
+        message: t.errors[code],
+      });
     } finally {
       setLoading(false);
     }
@@ -50,7 +67,7 @@ export default function Home() {
 
         <form
           onSubmit={handleCheck}
-          className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto mb-12"
+          className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto mb-6"
         >
           <input
             type="url"
@@ -70,17 +87,14 @@ export default function Home() {
           </button>
         </form>
 
-        {error && (
-          <p
-            role="alert"
-            className="max-w-2xl mx-auto mb-8 rounded-lg border border-red-900/50 bg-red-950/40 px-4 py-3 text-red-300 text-sm text-center"
-          >
-            {error}
-          </p>
+        {loading && <ScanProgress progress={progress} phase={phase} />}
+
+        {error && !loading && (
+          <ErrorAlert code={error.code} message={error.message} />
         )}
 
-        {meta && (
-          <div className="space-y-8">
+        {meta && !loading && (
+          <div className="space-y-8 mb-10">
             <MetaPanel meta={meta} />
             <div className="grid gap-6 lg:grid-cols-2">
               <WhatsAppPreview meta={meta} />
@@ -91,6 +105,8 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        <FaqSection />
 
         <Footer />
       </div>

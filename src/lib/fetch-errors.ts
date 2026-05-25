@@ -1,4 +1,10 @@
-export type FetchErrorCode = "invalid_url" | "fetch_failed";
+export type FetchErrorCode =
+  | "invalid_url"
+  | "unsupported_protocol"
+  | "timeout"
+  | "cors_blocked"
+  | "fetch_failed"
+  | "generic";
 
 export class OgFetchError extends Error {
   readonly code: FetchErrorCode;
