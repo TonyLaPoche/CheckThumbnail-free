@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/i18n/context";
 import type { OgMetadata } from "@/lib/og-parser";
 import { displayDescription, displayImage, displayTitle } from "@/lib/og-parser";
 
@@ -18,6 +19,8 @@ function MetaRow({ label, value }: { label: string; value: string | null }) {
 }
 
 export function MetaPanel({ meta }: MetaPanelProps) {
+  const { t } = useI18n();
+
   const rows: { label: string; value: string | null }[] = [
     { label: "og:title", value: meta.title },
     { label: "og:description", value: meta.description },
@@ -29,7 +32,7 @@ export function MetaPanel({ meta }: MetaPanelProps) {
     { label: "twitter:description", value: meta.twitterDescription },
     { label: "twitter:image", value: meta.twitterImage },
     { label: "canonical", value: meta.canonical },
-    { label: "URL finale", value: meta.url },
+    { label: t.metaPanel.finalUrl, value: meta.url },
   ];
 
   const effective = {
@@ -41,24 +44,24 @@ export function MetaPanel({ meta }: MetaPanelProps) {
   return (
     <section className="rounded-2xl border border-neutral-800 bg-neutral-900/80 overflow-hidden">
       <header className="px-4 py-3 border-b border-neutral-800">
-        <h2 className="font-semibold text-neutral-100">Métadonnées extraites</h2>
-        <p className="text-xs text-neutral-500 mt-1">Valeurs utilisées pour les previews ci-dessous</p>
+        <h2 className="font-semibold text-neutral-100">{t.metaPanel.title}</h2>
+        <p className="text-xs text-neutral-500 mt-1">{t.metaPanel.subtitle}</p>
       </header>
       <div className="p-4 space-y-4">
         <div className="rounded-lg bg-neutral-950 p-3 text-sm">
           <p>
-            <span className="text-neutral-500">Titre effectif :</span>{" "}
+            <span className="text-neutral-500">{t.metaPanel.effectiveTitle}</span>{" "}
             <span className="text-emerald-400">{effective.title}</span>
           </p>
           {effective.description && (
             <p className="mt-2">
-              <span className="text-neutral-500">Description :</span>{" "}
+              <span className="text-neutral-500">{t.metaPanel.description}</span>{" "}
               <span className="text-neutral-300">{effective.description}</span>
             </p>
           )}
           {effective.image && (
             <p className="mt-2">
-              <span className="text-neutral-500">Image :</span>{" "}
+              <span className="text-neutral-500">{t.metaPanel.image}</span>{" "}
               <a
                 href={effective.image}
                 target="_blank"
@@ -70,9 +73,11 @@ export function MetaPanel({ meta }: MetaPanelProps) {
             </p>
           )}
         </div>
-        <div>{rows.map((r) => (
-          <MetaRow key={r.label} label={r.label} value={r.value} />
-        ))}</div>
+        <div>
+          {rows.map((r) => (
+            <MetaRow key={r.label} label={r.label} value={r.value} />
+          ))}
+        </div>
       </div>
     </section>
   );

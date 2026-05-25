@@ -1,8 +1,8 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { fetchOgMetadata } from "@/lib/fetch-og";
-import type { OgMetadata } from "@/lib/og-parser";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 import { MetaPanel } from "@/components/MetaPanel";
 import {
   BlueskyPreview,
@@ -11,8 +11,13 @@ import {
   TwitterPreview,
   WhatsAppPreview,
 } from "@/components/platform-previews";
+import { useI18n } from "@/i18n/context";
+import { OgFetchError } from "@/lib/fetch-errors";
+import { fetchOgMetadata } from "@/lib/fetch-og";
+import type { OgMetadata } from "@/lib/og-parser";
 
 export default function Home() {
+  const { t } = useI18n();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,24 +33,20 @@ export default function Home() {
       const metadata = await fetchOgMetadata(url);
       setMeta(metadata);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors du scan.");
+      if (err instanceof OgFetchError) {
+        setError(t.errors[err.code]);
+      } else {
+        setError(t.errors.generic);
+      }
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-neutral-100">
+    <main className="flex-1 bg-[#050505] text-neutral-100">
       <div className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
-        <header className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-            Check <span className="text-emerald-500">Thumbnail</span>
-          </h1>
-          <p className="mt-3 text-neutral-400 max-w-lg mx-auto text-sm sm:text-base">
-            Collez une URL pour analyser les balises Open Graph et Twitter Card, puis
-            visualisez le rendu sur WhatsApp, X, Reddit, Bluesky et Telegram.
-          </p>
-        </header>
+        <Header />
 
         <form
           onSubmit={handleCheck}
@@ -55,7 +56,7 @@ export default function Home() {
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://exemple.com/article"
+            placeholder={t.form.placeholder}
             className="flex-1 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3 text-base text-neutral-100 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600/50 transition"
             required
             disabled={loading}
@@ -65,7 +66,7 @@ export default function Home() {
             disabled={loading || !url.trim()}
             className="rounded-xl bg-emerald-600 px-8 py-3 font-semibold text-white hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition shrink-0"
           >
-            {loading ? "Scan…" : "Check"}
+            {loading ? t.form.scanning : t.form.check}
           </button>
         </form>
 
@@ -90,6 +91,8 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        <Footer />
       </div>
     </main>
   );

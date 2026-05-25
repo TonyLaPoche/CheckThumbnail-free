@@ -1,3 +1,4 @@
+import { OgFetchError } from "./fetch-errors";
 import { parseOgFromHtml, type OgMetadata } from "./og-parser";
 
 const FETCH_TIMEOUT_MS = 12_000;
@@ -64,15 +65,13 @@ export async function fetchOgMetadata(inputUrl: string): Promise<OgMetadata> {
     targetUrl = normalizeInputUrl(inputUrl);
     new URL(targetUrl);
   } catch {
-    throw new Error("URL invalide.");
+    throw new OgFetchError("invalid_url");
   }
 
   const result = (await tryDirectFetch(targetUrl)) ?? (await tryProxyFetch(targetUrl));
 
   if (!result) {
-    throw new Error(
-      "Impossible de récupérer la page (CORS ou site inaccessible). Réessayez ou testez une autre URL.",
-    );
+    throw new OgFetchError("fetch_failed");
   }
 
   return parseOgFromHtml(result.html, result.finalUrl);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "@/i18n/context";
 
 interface PreviewImageProps {
   src: string | null;
@@ -16,6 +17,7 @@ const aspectClass = {
 };
 
 export function PreviewImage({ src, alt, className = "", aspect = "video" }: PreviewImageProps) {
+  const { t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   if (!src || failed) {
@@ -23,7 +25,7 @@ export function PreviewImage({ src, alt, className = "", aspect = "video" }: Pre
       <div
         className={`flex items-center justify-center bg-neutral-200 text-neutral-500 text-xs ${aspectClass[aspect]} ${className}`}
       >
-        Aucune image OG
+        {t.preview.noOgImage}
       </div>
     );
   }
