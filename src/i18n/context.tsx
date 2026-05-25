@@ -50,6 +50,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     document.documentElement.lang = locale;
     document.title = messages[locale].meta.title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", messages[locale].meta.description);
   }, [locale, mounted]);
 
   const value = useMemo(

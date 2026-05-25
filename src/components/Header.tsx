@@ -36,8 +36,11 @@ export function Header() {
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
           Check <span className="text-emerald-500">Thumbnail</span>
         </h1>
-        <p className="mt-3 text-neutral-400 max-w-lg mx-auto text-sm sm:text-base px-8 sm:px-0">
+        <p className="mt-3 text-neutral-400 max-w-xl mx-auto text-sm sm:text-base px-8 sm:px-0">
           {t.header.subtitle}
+        </p>
+        <p className="mt-2 text-neutral-600 max-w-xl mx-auto text-xs px-8 sm:px-0">
+          {t.header.seoLine}
         </p>
       </div>
     </header>

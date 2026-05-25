@@ -62,13 +62,15 @@ const errorHelpEn: ErrorHelpMessages = {
 export const messages = {
   fr: {
     meta: {
-      title: "Check Thumbnail — Preview OG & réseaux sociaux",
+      title: "Check Thumbnail — Prévisualiser URL, OG preview & thumbnails",
       description:
-        "Scannez une URL et prévisualisez og:title, image et cartes WhatsApp, X, Reddit, Bluesky, Telegram.",
+        "Outil gratuit pour prévisualiser une URL : scan Open Graph, Twitter Card et thumbnails WhatsApp, X, Reddit, Bluesky, Telegram.",
     },
     header: {
       subtitle:
-        "Collez une URL pour analyser les balises Open Graph et Twitter Card, puis visualisez le rendu sur WhatsApp, X, Reddit, Bluesky et Telegram.",
+        "Prévisualisez gratuitement le rendu d’un lien partagé : OG preview, thumbnails URL et cartes sociales (WhatsApp, X, Reddit, Bluesky, Telegram) avant publication.",
+      seoLine:
+        "Vérificateur de métadonnées Open Graph · scan link preview · check thumbnail",
     },
     faq: {
       title: "Comment ça marche ?",
@@ -191,13 +193,15 @@ export const messages = {
   },
   en: {
     meta: {
-      title: "Check Thumbnail — OG & social preview",
+      title: "Check Thumbnail — URL preview, OG preview & thumbnails",
       description:
-        "Scan a URL and preview og:title, images and cards for WhatsApp, X, Reddit, Bluesky, and Telegram.",
+        "Free tool to preview any URL: Open Graph, Twitter Card, and thumbnails for WhatsApp, X, Reddit, Bluesky, and Telegram.",
     },
     header: {
       subtitle:
-        "Paste a URL to analyze Open Graph and Twitter Card tags, then preview how it looks on WhatsApp, X, Reddit, Bluesky, and Telegram.",
+        "Preview how a shared link will look: OG preview, URL thumbnails, and social cards (WhatsApp, X, Reddit, Bluesky, Telegram) before you publish.",
+      seoLine:
+        "Open Graph checker · link preview scanner · thumbnail URL tool",
     },
     faq: {
       title: "How does it work?",
