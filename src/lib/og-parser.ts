@@ -1,5 +1,3 @@
-import * as cheerio from "cheerio";
-
 export interface OgMetadata {
   url: string;
   title: string | null;
@@ -27,32 +25,40 @@ function resolveUrl(base: string, relative: string | undefined | null): string |
   }
 }
 
-function getMeta($: cheerio.CheerioAPI, selectors: string[]): string | null {
+function metaContent(doc: Document, selector: string): string | null {
+  const el = doc.querySelector(selector);
+  const content = el?.getAttribute("content")?.trim();
+  return content || null;
+}
+
+function firstMeta(
+  doc: Document,
+  selectors: string[],
+): string | null {
   for (const sel of selectors) {
-    const el = $(sel).first();
-    const content = el.attr("content") ?? el.attr("value") ?? el.text()?.trim();
-    if (content) return content;
+    const value = metaContent(doc, sel);
+    if (value) return value;
   }
   return null;
 }
 
 export function parseOgFromHtml(html: string, pageUrl: string): OgMetadata {
-  const $ = cheerio.load(html);
+  const doc = new DOMParser().parseFromString(html, "text/html");
   const raw: Record<string, string> = {};
 
-  $("meta").each((_, el) => {
-    const name = $(el).attr("name") ?? $(el).attr("property");
-    const content = $(el).attr("content");
+  doc.querySelectorAll("meta").forEach((el) => {
+    const name = el.getAttribute("name") ?? el.getAttribute("property");
+    const content = el.getAttribute("content");
     if (name && content) raw[name] = content;
   });
 
   const title =
-    getMeta($, ['meta[property="og:title"]', 'meta[name="twitter:title"]']) ??
-    $("title").first().text()?.trim() ??
+    firstMeta(doc, ['meta[property="og:title"]', 'meta[name="twitter:title"]']) ??
+    doc.querySelector("title")?.textContent?.trim() ??
     null;
 
   const description =
-    getMeta($, [
+    firstMeta(doc, [
       'meta[property="og:description"]',
       'meta[name="twitter:description"]',
       'meta[name="description"]',
@@ -60,7 +66,7 @@ export function parseOgFromHtml(html: string, pageUrl: string): OgMetadata {
 
   const image = resolveUrl(
     pageUrl,
-    getMeta($, [
+    firstMeta(doc, [
       'meta[property="og:image"]',
       'meta[property="og:image:url"]',
       'meta[name="twitter:image"]',
@@ -70,30 +76,30 @@ export function parseOgFromHtml(html: string, pageUrl: string): OgMetadata {
 
   const twitterImage = resolveUrl(
     pageUrl,
-    getMeta($, ['meta[name="twitter:image"]', 'meta[name="twitter:image:src"]']),
+    firstMeta(doc, ['meta[name="twitter:image"]', 'meta[name="twitter:image:src"]']),
   );
 
-  const favicon = resolveUrl(
+  const faviconEl =
+    doc.querySelector('link[rel="icon"]') ?? doc.querySelector('link[rel="shortcut icon"]');
+  const favicon = resolveUrl(pageUrl, faviconEl?.getAttribute("href") ?? "/favicon.ico");
+
+  const canonical = resolveUrl(
     pageUrl,
-    $('link[rel="icon"]').attr("href") ??
-      $('link[rel="shortcut icon"]').attr("href") ??
-      "/favicon.ico",
+    doc.querySelector('link[rel="canonical"]')?.getAttribute("href") ?? null,
   );
-
-  const canonical = resolveUrl(pageUrl, $('link[rel="canonical"]').attr("href"));
 
   return {
     url: pageUrl,
     title,
     description,
     image,
-    imageWidth: getMeta($, ['meta[property="og:image:width"]']),
-    imageHeight: getMeta($, ['meta[property="og:image:height"]']),
-    siteName: getMeta($, ['meta[property="og:site_name"]']),
-    type: getMeta($, ['meta[property="og:type"]']),
-    twitterCard: getMeta($, ['meta[name="twitter:card"]']),
-    twitterTitle: getMeta($, ['meta[name="twitter:title"]']),
-    twitterDescription: getMeta($, ['meta[name="twitter:description"]']),
+    imageWidth: firstMeta(doc, ['meta[property="og:image:width"]']),
+    imageHeight: firstMeta(doc, ['meta[property="og:image:height"]']),
+    siteName: firstMeta(doc, ['meta[property="og:site_name"]']),
+    type: firstMeta(doc, ['meta[property="og:type"]']),
+    twitterCard: firstMeta(doc, ['meta[name="twitter:card"]']),
+    twitterTitle: firstMeta(doc, ['meta[name="twitter:title"]']),
+    twitterDescription: firstMeta(doc, ['meta[name="twitter:description"]']),
     twitterImage,
     favicon,
     canonical,

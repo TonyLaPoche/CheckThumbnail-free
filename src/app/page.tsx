@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { fetchOgMetadata } from "@/lib/fetch-og";
 import type { OgMetadata } from "@/lib/og-parser";
 import { MetaPanel } from "@/components/MetaPanel";
 import {
@@ -24,19 +25,10 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Erreur lors du scan.");
-        return;
-      }
-      setMeta(data.metadata);
-    } catch {
-      setError("Impossible de contacter le serveur local.");
+      const metadata = await fetchOgMetadata(url);
+      setMeta(metadata);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur lors du scan.");
     } finally {
       setLoading(false);
     }
