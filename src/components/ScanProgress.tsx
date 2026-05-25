@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/context";
-import type { ScanPhase } from "@/lib/fetch-og";
+import type { ScanPhase, SlowReason } from "@/lib/fetch-og";
 
 interface ScanProgressProps {
   progress: number;
   phase: ScanPhase;
+  slowReason?: SlowReason;
 }
 
-export function ScanProgress({ progress, phase }: ScanProgressProps) {
+export function ScanProgress({ progress, phase, slowReason }: ScanProgressProps) {
   const { t } = useI18n();
   const [displayProgress, setDisplayProgress] = useState(0);
 
@@ -32,7 +33,10 @@ export function ScanProgress({ progress, phase }: ScanProgressProps) {
     return () => window.clearInterval(id);
   }, [progress, displayProgress]);
 
-  const phaseLabel = t.loading.phases[phase];
+  const phaseLabel =
+    phase === "slow_wait" && slowReason
+      ? t.loading.slowReasons[slowReason]
+      : t.loading.phases[phase];
 
   return (
     <div
@@ -57,9 +61,13 @@ export function ScanProgress({ progress, phase }: ScanProgressProps) {
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-neutral-400 flex items-center gap-2">
-        <span className="inline-block h-3 w-3 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin shrink-0" />
-        {phaseLabel}
+      <p
+        className={`mt-3 text-xs flex items-start gap-2 ${
+          phase === "slow_wait" ? "text-amber-400/90" : "text-neutral-400"
+        }`}
+      >
+        <span className="inline-block h-3 w-3 mt-0.5 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin shrink-0" />
+        <span className="leading-relaxed">{phaseLabel}</span>
       </p>
     </div>
   );

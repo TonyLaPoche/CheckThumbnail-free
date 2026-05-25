@@ -17,7 +17,7 @@ import { ScanProgress } from "@/components/ScanProgress";
 import { useI18n } from "@/i18n/context";
 import type { FetchErrorCode } from "@/lib/fetch-errors";
 import { OgFetchError } from "@/lib/fetch-errors";
-import { fetchOgMetadata, type ScanPhase } from "@/lib/fetch-og";
+import { fetchOgMetadata, type ScanPhase, type SlowReason } from "@/lib/fetch-og";
 import type { OgMetadata } from "@/lib/og-parser";
 
 interface ScanError {
@@ -31,6 +31,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<ScanPhase>("validating");
+  const [slowReason, setSlowReason] = useState<SlowReason | undefined>();
   const [error, setError] = useState<ScanError | null>(null);
   const [meta, setMeta] = useState<OgMetadata | null>(null);
 
@@ -41,11 +42,13 @@ export default function Home() {
     setLoading(true);
     setProgress(0);
     setPhase("validating");
+    setSlowReason(undefined);
 
     try {
-      const metadata = await fetchOgMetadata(url, (p, ph) => {
+      const metadata = await fetchOgMetadata(url, (p, ph, extras) => {
         setProgress(p);
         setPhase(ph);
+        if (extras?.slowReason) setSlowReason(extras.slowReason);
       });
       setMeta(metadata);
     } catch (err) {
@@ -87,7 +90,9 @@ export default function Home() {
           </button>
         </form>
 
-        {loading && <ScanProgress progress={progress} phase={phase} />}
+        {loading && (
+          <ScanProgress progress={progress} phase={phase} slowReason={slowReason} />
+        )}
 
         {error && !loading && (
           <ErrorAlert code={error.code} message={error.message} />

@@ -16,7 +16,7 @@ const errorHelpFr: ErrorHelpMessages = {
   },
   timeout: {
     title: "Délai dépassé",
-    body: "Le site met trop de temps à répondre (plus de 12 secondes). Le serveur peut être lent, surchargé ou bloquer les requêtes automatisées.",
+    body: "Le site met trop de temps à répondre (limite de 60 secondes). Plateformes vidéo, pages lourdes ou protections anti-bot peuvent nécessiter plus de temps que nous ne pouvons allouer.",
   },
   cors_blocked: {
     title: "Blocage CORS",
@@ -43,7 +43,7 @@ const errorHelpEn: ErrorHelpMessages = {
   },
   timeout: {
     title: "Request timed out",
-    body: "The site took too long to respond (over 12 seconds). The server may be slow, overloaded, or blocking automated requests.",
+    body: "The site took too long to respond (60 second limit). Video platforms, heavy pages, or anti-bot protection may need more time than we can allow.",
   },
   cors_blocked: {
     title: "CORS blocked",
@@ -148,14 +148,23 @@ export const messages = {
         validating: "Validation de l'URL…",
         fetching_direct: "Récupération directe de la page…",
         fetching_proxy: "Contournement CORS via proxy…",
+        slow_wait: "Le site met plus de temps que prévu…",
         parsing: "Extraction des métadonnées OG…",
         done: "Terminé",
       } satisfies Record<ScanPhase, string>,
+      slowReasons: {
+        video:
+          "Plateforme vidéo détectée (YouTube, Vimeo, etc.) : la page est volumineuse et charge lentement. Nous patientons encore (jusqu'à 60 s)…",
+        proxy:
+          "Le contournement CORS via proxy prend plus de temps : le site ou l'intermédiaire répond lentement. Encore un peu de patience…",
+        heavy:
+          "Ce site répond lentement (page lourde, serveur distant ou protection anti-bot). L'analyse continue jusqu'à 60 secondes…",
+      },
     },
     errors: {
       invalid_url: "URL invalide — vérifiez le format de l'adresse.",
       unsupported_protocol: "Protocole non supporté — utilisez http:// ou https://.",
-      timeout: "Délai dépassé — le site ne répond pas assez vite.",
+      timeout: "Délai dépassé (60 s) — le site ne répond pas à temps.",
       cors_blocked: "Accès bloqué par CORS — la page refuse la lecture externe.",
       fetch_failed: "Page inaccessible — impossible de récupérer le contenu.",
       generic: "Erreur lors du scan.",
@@ -268,14 +277,23 @@ export const messages = {
         validating: "Validating URL…",
         fetching_direct: "Fetching page directly…",
         fetching_proxy: "Bypassing CORS via proxy…",
+        slow_wait: "This is taking longer than expected…",
         parsing: "Extracting OG metadata…",
         done: "Done",
       } satisfies Record<ScanPhase, string>,
+      slowReasons: {
+        video:
+          "Video platform detected (YouTube, Vimeo, etc.): the page is heavy and loads slowly. Still waiting (up to 60 s)…",
+        proxy:
+          "CORS proxy bypass is taking longer: the site or intermediary is responding slowly. Please hold on…",
+        heavy:
+          "This site is responding slowly (heavy page, remote server, or anti-bot protection). Scan continues for up to 60 seconds…",
+      },
     },
     errors: {
       invalid_url: "Invalid URL — check the address format.",
       unsupported_protocol: "Unsupported protocol — use http:// or https://.",
-      timeout: "Timed out — the site is not responding fast enough.",
+      timeout: "Timed out (60 s) — the site did not respond in time.",
       cors_blocked: "CORS blocked — the page refuses external access.",
       fetch_failed: "Page unreachable — could not fetch content.",
       generic: "Error while scanning.",
